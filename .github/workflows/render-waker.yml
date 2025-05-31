@@ -14,6 +14,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run render_waker.sh to ping endpoints
+        id: waker
         run: bash scripts/render_waker.sh
 
       - name: On failure, send alert email
@@ -25,10 +26,97 @@ jobs:
           secure: true
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "🚨 Render Wakeup Job Failed"
+          subject: "🚨 Render服务唤醒失败 (${{ steps.waker.outputs.TOTAL_FAILURES }}/${{ steps.waker.outputs.TOTAL_ENDPOINTS }})"
           to: alert@bitsleep.cn
           from: Render Waker <${{ secrets.MAIL_USERNAME }}>
+          html_body: |
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="UTF-8">
+              <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; margin: 0; padding: 20px; background-color: #f6f8fa; }
+                .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+                .header { background: linear-gradient(135deg, #ff4444, #cc0000); color: white; padding: 20px; border-radius: 8px 8px 0 0; text-align: center; }
+                .content { padding: 20px; }
+                .status-failed { color: #d73a49; font-weight: bold; }
+                .status-success { color: #28a745; font-weight: bold; }
+                .endpoint-list { margin: 15px 0; }
+                .endpoint-item { padding: 10px; margin: 5px 0; border-radius: 4px; border-left: 4px solid; }
+                .endpoint-failed { background: #fff5f5; border-left-color: #d73a49; }
+                .endpoint-success { background: #f0fff4; border-left-color: #28a745; }
+                .actions { margin: 20px 0; text-align: center; }
+                .btn { display: inline-block; padding: 12px 24px; margin: 5px; text-decoration: none; border-radius: 5px; font-weight: bold; }
+                .btn-primary { background: #0366d6; color: white; }
+                .btn-danger { background: #d73a49; color: white; }
+                .btn-success { background: #28a745; color: white; }
+                .footer { background: #f6f8fa; padding: 15px; border-radius: 0 0 8px 8px; font-size: 12px; color: #586069; text-align: center; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1>🚨 Render服务唤醒失败</h1>
+                  <p>${{ steps.waker.outputs.TOTAL_FAILURES }}个服务无法访问 (共${{ steps.waker.outputs.TOTAL_ENDPOINTS }}个)</p>
+                </div>
+                
+                <div class="content">                  <h3>失败的服务:</h3>
+                  <div class="endpoint-list">
+                    <div class="endpoint-item endpoint-failed">
+                      <span class="status-failed">❌ 失败的端点: ${{ steps.waker.outputs.FAILED_ENDPOINTS }}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="actions">
+                    <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" class="btn btn-primary">查看详细日志</a>
+                    <a href="${{ github.server_url }}/${{ github.repository }}/actions/workflows/render-waker.yml" class="btn btn-success">手动重新唤醒</a>
+                  </div>
+                  
+                  <h3>快速唤醒链接:</h3>
+                  <div class="endpoint-list">
+                    <div class="endpoint-item">
+                      <strong>HuskyAI:</strong>
+                      <a href="https://huskyAI.bitsleep.cn" class="btn btn-danger" style="margin-left: 10px;">唤醒</a>
+                    </div>
+                    <div class="endpoint-item">
+                      <strong>BitSleep主站:</strong>
+                      <a href="https://bitsleep.cn" class="btn btn-danger" style="margin-left: 10px;">唤醒</a>
+                    </div>
+                    <div class="endpoint-item">
+                      <strong>Unity WebGL:</strong>
+                      <a href="https://unity-webgl.onrender.com" class="btn btn-danger" style="margin-left: 10px;">唤醒</a>
+                    </div>
+                    <div class="endpoint-item">
+                      <strong>BitSleep Render:</strong>
+                      <a href="https://bitsleep-5zg5.onrender.com" class="btn btn-danger" style="margin-left: 10px;">唤醒</a>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="footer">
+                  <p>本邮件由 GitHub Actions 自动发送</p>
+                  <p>时间: ${{ github.event.head_commit.timestamp || github.run_number }}</p>
+                  <p>仓库: <a href="${{ github.server_url }}/${{ github.repository }}">${{ github.repository }}</a></p>
+                </div>
+              </div>
+            </body>
+            </html>
           body: |
-            GitHub Actions Render Wake-up Job failed.
-            Please check the logs:
+            🚨 Render服务唤醒失败报告
+            
+            失败统计: ${{ steps.waker.outputs.TOTAL_FAILURES }}/${{ steps.waker.outputs.TOTAL_ENDPOINTS }} 个服务无法访问
+            
+            失败的服务:
+            ${{ steps.waker.outputs.FAILED_ENDPOINTS }}
+            
+            请检查详细日志:
             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            
+            手动重新唤醒:
+            ${{ github.server_url }}/${{ github.repository }}/actions/workflows/render-waker.yml
+            
+            快速唤醒链接:
+            • HuskyAI: https://huskyAI.bitsleep.cn
+            • BitSleep主站: https://bitsleep.cn  
+            • Unity WebGL: https://unity-webgl.onrender.com
+            • BitSleep Render: https://bitsleep-5zg5.onrender.com
