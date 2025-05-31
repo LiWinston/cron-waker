@@ -8,6 +8,7 @@ ENDPOINTS=(
   "https://bitsleep.cn"
   "https://unity-webgl.onrender.com"
   "https://bitsleep-5zg5.onrender.com"
+  "https://thisdoesnotexist.bitsleep.cn"
 )
 
 echo "Starting wake-up requests..."
