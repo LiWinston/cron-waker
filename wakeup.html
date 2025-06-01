@@ -172,32 +172,36 @@
         </div>
     </div>
 
-    <script>
-        const services = [
+    <script>        const services = [
             {
                 name: "HuskyAI 主服务",
                 url: "https://huskyAI.bitsleep.cn",
-                description: "AI 对话服务主站"
+                description: "AI 对话服务主站",
+                method: "HEAD"
             },
             {
                 name: "HuskyAI 健康检查",
                 url: "https://huskyAI.bitsleep.cn/api/health",
-                description: "API 健康状态检查"
+                description: "API 健康状态检查",
+                method: "GET"
             },
             {
                 name: "BitSleep 主站",
                 url: "https://bitsleep.cn",
-                description: "主要网站服务"
+                description: "主要网站服务",
+                method: "GET"
             },
             {
                 name: "Unity WebGL",
                 url: "https://unity-webgl.onrender.com",
-                description: "Unity 游戏托管服务"
+                description: "Unity 游戏托管服务",
+                method: "HEAD"
             },
             {
                 name: "BitSleep Render",
                 url: "https://bitsleep-5zg5.onrender.com",
-                description: "备用渲染服务"
+                description: "备用渲染服务",
+                method: "GET"
             }
         ];
 
@@ -207,29 +211,27 @@
             
             services.forEach((service, index) => {
                 const card = document.createElement('div');
-                card.className = 'service-card';
-                card.innerHTML = `
+                card.className = 'service-card';                card.innerHTML = `
                     <div class="service-name">${service.name}</div>
                     <div class="service-url">${service.url}</div>
                     <p style="color: #666; font-size: 0.9em;">${service.description}</p>
-                    <button class="btn btn-wake" onclick="wakeupService('${service.url}', ${index})">🔥 唤醒服务</button>
+                    <p style="color: #888; font-size: 0.8em;">HTTP方法: ${service.method}</p>
+                    <button class="btn btn-wake" onclick="wakeupService('${service.url}', '${service.method}', ${index})">🔥 唤醒服务</button>
                     <a href="${service.url}" target="_blank" class="btn btn-visit">🌐 访问服务</a>
                     <div id="status-${index}" class="status" style="display: none;"></div>
                 `;
                 grid.appendChild(card);
             });
-        }
-
-        async function wakeupService(url, index) {
+        }        async function wakeupService(url, method, index) {
             const statusDiv = document.getElementById(`status-${index}`);
             statusDiv.style.display = 'block';
             statusDiv.className = 'status status-checking';
-            statusDiv.textContent = '🔄 正在唤醒服务...';
+            statusDiv.textContent = `🔄 正在使用 ${method} 方法唤醒服务...`;
 
             try {
                 const startTime = Date.now();
                 const response = await fetch(url, {
-                    method: 'GET',
+                    method: method,
                     mode: 'no-cors' // 避免CORS问题
                 });
                 
@@ -237,7 +239,7 @@
                 const responseTime = endTime - startTime;
                 
                 statusDiv.className = 'status status-success';
-                statusDiv.textContent = `✅ 唤醒成功！响应时间: ${responseTime}ms`;
+                statusDiv.textContent = `✅ 唤醒成功！方法: ${method}, 响应时间: ${responseTime}ms`;
                 
                 // 3秒后隐藏状态
                 setTimeout(() => {
@@ -246,7 +248,7 @@
                 
             } catch (error) {
                 statusDiv.className = 'status status-error';
-                statusDiv.textContent = `❌ 唤醒失败: ${error.message}`;
+                statusDiv.textContent = `❌ 唤醒失败 (${method}): ${error.message}`;
                 
                 // 5秒后隐藏状态
                 setTimeout(() => {
@@ -265,14 +267,12 @@
             progressText.textContent = '开始唤醒所有服务...';
 
             let completed = 0;
-            const total = services.length;
-
-            for (let i = 0; i < services.length; i++) {
+            const total = services.length;            for (let i = 0; i < services.length; i++) {
                 const service = services[i];
                 progressText.textContent = `正在唤醒: ${service.name}`;
                 
                 try {
-                    await wakeupService(service.url, i);
+                    await wakeupService(service.url, service.method, i);
                 } catch (error) {
                     console.error(`Failed to wake up ${service.name}:`, error);
                 }
