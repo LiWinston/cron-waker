@@ -7,6 +7,7 @@ ENDPOINTS=(
   "https://huskyAI.bitsleep.cn"
   "https://huskyAI.bitsleep.cn/api/health"
   "https://bitsleep.cn"
+  "https://bitsleep.cn/sapi/health/keepalive"
   "https://unity-webgl.onrender.com"
   "https://bitsleep-5zg5.onrender.com"
   # "https://thisdoesnotexist.bitsleep.cn"   # 故意失败用
@@ -17,6 +18,7 @@ declare -A HTTP_METHODS
 HTTP_METHODS["https://huskyAI.bitsleep.cn"]="HEAD"
 HTTP_METHODS["https://huskyAI.bitsleep.cn/api/health"]="GET"
 HTTP_METHODS["https://bitsleep.cn"]="GET"
+HTTP_METHODS["https://bitsleep.cn/sapi/health/keepalive"]="GET"
 HTTP_METHODS["https://unity-webgl.onrender.com"]="HEAD"
 HTTP_METHODS["https://bitsleep-5zg5.onrender.com"]="GET"
 # HTTP_METHODS["https://thisdoesnotexist.bitsleep.cn"]="GET"   # 故意失败用
