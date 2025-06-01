@@ -36,10 +36,23 @@ for i in "${!ENDPOINTS[@]}"; do
   method="${HTTP_METHODS[$url]:-GET}"  # 默认使用GET方法
   (
     echo "[INFO] Pinging $url using $method method..."
-    if curl -X "$method" --retry 3 --retry-delay 5 --max-time 15 -s -o /dev/null "$url"; then
-      echo "SUCCESS:$url" >> "$RESULTS_FILE"
+    
+    # 获取HTTP状态码
+    status_code=$(curl -X "$method" --retry 3 --retry-delay 5 --max-time 15 -s -o /dev/null -w "%{http_code}" "$url" || echo "000")
+    
+    echo "[INFO] $url returned status code: $status_code"
+    
+    # 判断状态码是否表示成功
+    if [[ "$status_code" =~ ^[123] ]]; then
+      # 1xx (信息性), 2xx (成功), 3xx (重定向) 都认为是成功
+      echo "SUCCESS:$url:$status_code" >> "$RESULTS_FILE"
+    elif [[ "$status_code" == "000" ]]; then
+      # 000 表示网络错误或无法连接
+      echo "FAILED:$url:NETWORK_ERROR" >> "$RESULTS_FILE"
+      exit 1
     else
-      echo "FAILED:$url" >> "$RESULTS_FILE"
+      # 4xx (客户端错误), 5xx (服务器错误) 认为是失败
+      echo "FAILED:$url:$status_code" >> "$RESULTS_FILE"
       exit 1
     fi
   ) &
