@@ -2,6 +2,15 @@
 
 set -e
 
+# 定义 User-Agent 列表 (模拟常见浏览器)
+USER_AGENTS=(
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0"
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15"
+  "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+)
+
 # 定义端点数组
 ENDPOINTS=(
   "https://huskyAI.bitsleep.cn"
@@ -37,10 +46,29 @@ for i in "${!ENDPOINTS[@]}"; do
   url="${ENDPOINTS[$i]}"
   method="${HTTP_METHODS[$url]:-GET}"  # 默认使用GET方法
   (
-    echo "[INFO] Pinging $url using $method method..."
+    # 随机延迟 1-10 秒，避免并发特征过于明显
+    sleep_time=$(( ( RANDOM % 10 ) + 1 ))
+    sleep "$sleep_time"
+
+    # 随机选择 User-Agent
+    ua_index=$((RANDOM % ${#USER_AGENTS[@]}))
+    user_agent="${USER_AGENTS[$ua_index]}"
+
+    echo "[INFO] Pinging $url using $method method (UA: ...${user_agent: -20})..."
     
-    # 获取HTTP状态码
-    status_code=$(curl -X "$method" --retry 3 --retry-delay 5 --max-time 15 -s -o /dev/null -w "%{http_code}" "$url" || echo "000")
+    # 获取HTTP状态码，添加拟人化 Header
+    status_code=$(curl -X "$method" \
+      -A "$user_agent" \
+      -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7" \
+      -H "Accept-Language: en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7" \
+      -H "Cache-Control: no-cache" \
+      -H "Pragma: no-cache" \
+      -H "Upgrade-Insecure-Requests: 1" \
+      -H "Sec-Fetch-Dest: document" \
+      -H "Sec-Fetch-Mode: navigate" \
+      -H "Sec-Fetch-Site: none" \
+      -H "Sec-Fetch-User: ?1" \
+      --retry 3 --retry-delay 5 --max-time 15 -s -o /dev/null -w "%{http_code}" "$url" || echo "000")
     
     echo "[INFO] $url returned status code: $status_code"
     
