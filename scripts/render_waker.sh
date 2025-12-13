@@ -15,8 +15,8 @@ ENDPOINTS=(
 
 # 定义HTTP方法映射 (关联数组/哈希表)
 declare -A HTTP_METHODS
-HTTP_METHODS["https://huskyAI.bitsleep.cn"]="HEAD"
-HTTP_METHODS["https://huskyAI.bitsleep.cn/api/health"]="GET"
+# HTTP_METHODS["https://huskyAI.bitsleep.cn"]="HEAD"
+# HTTP_METHODS["https://huskyAI.bitsleep.cn/api/health"]="GET"
 HTTP_METHODS["https://bitsleep.cn"]="GET"
 HTTP_METHODS["https://bitsleep.cn/sapi/health/keepalive"]="GET"
 HTTP_METHODS["https://unity-webgl.onrender.com"]="HEAD"
