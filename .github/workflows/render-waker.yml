@@ -18,7 +18,7 @@ jobs:
         run: bash scripts/render_waker.sh
 
       - name: On failure, send alert email
-        if: failure()
+        if: false # failure()
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.qq.com
