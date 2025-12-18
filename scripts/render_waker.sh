@@ -19,6 +19,7 @@ ENDPOINTS=(
   "https://bitsleep.cn/sapi/health/keepalive"
   "https://unity-webgl.onrender.com"
   "https://bitsleep-5zg5.onrender.com"
+  "https://github.com/LiWinston"
   # "https://thisdoesnotexist.bitsleep.cn"   # 故意失败用
 )
 
@@ -30,6 +31,7 @@ HTTP_METHODS["https://bitsleep.cn"]="GET"
 HTTP_METHODS["https://bitsleep.cn/sapi/health/keepalive"]="GET"
 HTTP_METHODS["https://unity-webgl.onrender.com"]="HEAD"
 HTTP_METHODS["https://bitsleep-5zg5.onrender.com"]="GET"
+HTTP_METHODS["https://github.com/LiWinston"]="GET"
 # HTTP_METHODS["https://thisdoesnotexist.bitsleep.cn"]="GET"   # 故意失败用
 
 echo "Starting wake-up requests..."
